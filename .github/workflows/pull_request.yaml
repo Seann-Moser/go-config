@@ -5,7 +5,7 @@ on:
 
 jobs:
   pull_request:
-    uses: Seann-Moser/GithubWorkflows/.github/workflows/go_pull_request.yaml@main
+    uses: Seann-Moser/GithubWorkflows/.github/workflows/go_pull_request.yml@main
     with:
       GH_CI_USER: ci-cd
       GOPRIVATE: "github.com/Seann-Moser"

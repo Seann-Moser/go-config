@@ -7,6 +7,6 @@ on:
 
 jobs:
   push_main:
-    uses: Seann-Moser/GithubWorkflows/.github/workflows/go_pull_request.yaml@general/app/v1
+    uses: Seann-Moser/GithubWorkflows/.github/workflows/semantic_release_push_main.yml@main
     secrets:
       GH_CI_PAT: ${{ secrets.GH_CI_PAT }}
