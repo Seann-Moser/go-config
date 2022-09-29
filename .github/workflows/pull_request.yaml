@@ -1,0 +1,13 @@
+name: Pull Request
+
+on:
+  pull_request:
+
+jobs:
+  pull_request:
+    uses: Seann-Moser/GithubWorkflows/.github/workflows/go_pull_request.yaml@general/app/v1
+    with:
+      GH_CI_USER: ci-cd
+      GOPRIVATE: "github.com/Seann-Moser"
+    secrets:
+      GH_CI_PAT: ${{ secrets.GH_CI_PAT }}

@@ -1,0 +1,12 @@
+name: Create Github Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  push_main:
+    uses: Seann-Moser/GithubWorkflows/.github/workflows/go_pull_request.yaml@general/app/v1
+    secrets:
+      GH_CI_PAT: ${{ secrets.GH_CI_PAT }}
