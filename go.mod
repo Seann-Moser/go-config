@@ -3,7 +3,7 @@ module github.com/Seann-Moser/go-config
 go 1.19
 
 require (
-	github.com/Seann-Moser/QueryHelper v1.7.8
+	github.com/Seann-Moser/QueryHelper v1.9.0
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/spf13/cobra v1.5.0
@@ -14,6 +14,7 @@ require (
 
 require (
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect

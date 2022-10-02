@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 
-	"github.com/Seann-Moser/QueryHelper/v2/dataset"
+	"github.com/Seann-Moser/QueryHelper/dataset"
 	"github.com/jmoiron/sqlx"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -43,7 +43,7 @@ func New(logger *zap.Logger, tables ...interface{}) (*DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	ds, err := dataset.NewDataset(context.Background(), datasetName, viper.GetBool(datasetCreateTable), viper.GetBool(datasetDropTable), logger, db, tables...)
+	ds, err := dataset.New(context.Background(), datasetName, viper.GetBool(datasetCreateTable), viper.GetBool(datasetDropTable), logger, db, tables...)
 	if err != nil {
 		return nil, err
 	}
