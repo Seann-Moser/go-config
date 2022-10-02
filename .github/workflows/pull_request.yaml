@@ -10,19 +10,14 @@ jobs:
     #
     runs-on: ubuntu-latest
     steps:
-      # checkout the commits to lint.
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      # setup node, needed to lint commits.
       - uses: actions/setup-node@v1
         with:
           node-version: 14
-      # Install needed libraries to lint commits.
       - run: npm install --save-dev @commitlint/{config-conventional,cli}
-      # Lint the commits.
       - run: npx commitlint --from=${{ github.event.pull_request.base.sha }}
-
   lint:
     #
     # runs golangci-lint
@@ -48,82 +43,19 @@ jobs:
         with:
           version: latest
 
-  test:
-    #
-    # ensure go standards and tests pass
-    #
+  tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # List of go versions to test on.
-        go: ['^1']
+        go: ['1.18','1.19']
     steps:
-      # Checkout go code to test.
-      - name: Checkout repo
+      - name: Checkout Repo
         uses: actions/checkout@v2
-      # Setup Go for each version in the matrix.
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
-          go-version: ${{ matrix.go }}
-      # Use auth to get access to private Git repos for Go code dependencies.
-      - name: Configure git for private modules
-        env:
-          TOKEN: ${{ secrets.GH_CI_PAT }}
-          GITHUB_USERNAME: ci-cd
-        run: git config --global url."https://${GITHUB_USERNAME}:${TOKEN}@github.com".insteadOf "https://github.com"
-      # Vendor Go code for ever Go module.
-      - name: go mod vendor
-        run: find . -name vendor -prune -o -name go.mod -print | xargs -n1 dirname | xargs -n1 -I{} bash -c "pushd {}; go mod vendor"
-      # Go vet every Go module.
-      - name: go vet
-        run: find . -name vendor -prune -o -name go.mod -print | xargs -n1 dirname | xargs -n1 -I{} bash -c "pushd {}; go vet ./..."
-      # Run unit test for evet Go module.
+          go-version: ${{matrix.go}}
+      - name: go vendor
+        run: go mod vendor
       - name: go test
-        run: find . -name vendor -prune -o -name go.mod -print | xargs -n1 dirname | xargs -n1 -I{} bash -c "pushd {}; go test -mod=vendor --race -v ./..."
-
-#  docker-build:
-#    #
-#    # ensures the docker image will build without pushing to the registry
-#    # uses the git sha for the most recent commit for the version
-#    #
-#    runs-on: ubuntu-latest
-#    steps:
-#      # Checkout code to build.
-#      - name: Checkout repo
-#        uses: actions/checkout@v2
-#      - name: Setup Go
-#        uses: actions/setup-go@v2
-#        with:
-#          go-version: '^1'
-#      # Use auth to get access to private Git repos for Go code dependencies.
-#      - name: Configure git for private modules
-#        env:
-#          TOKEN: ${{ secrets.GH_CI_PAT }}
-#          GITHUB_USERNAME: ci-cd
-#        run: git config --global url."https://${GITHUB_USERNAME}:${TOKEN}@github.com".insteadOf "https://github.com"
-#      # Vendor Go code needed to build app.
-#      - name: go mod vendor
-#        run: go mod vendor
-#      # Setup docker build arguments.
-#      - name: Docker release meta
-#        id: release
-#        uses: docker/metadata-action@v3
-#        with:
-#          images: |
-#            ${{ github.repository }}
-#          tags: |
-#            type=sha
-#      # Setup Docker builder to do build.
-#      - name: Setup Docker Buildx
-#        id: buildx
-#        uses: docker/setup-buildx-action@v1
-#      # Build the app.
-#      - name: Build
-#        uses: docker/build-push-action@v2
-#        with:
-#          push: false
-#          context: .
-#          file: Dockerfile
-#          platforms: linux/amd64
-#          tags: ${{ steps.release.outputs.tags }}
+        run: go test ./...
