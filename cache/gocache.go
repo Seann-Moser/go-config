@@ -27,5 +27,3 @@ func (g *GoCache[K, V]) Get(ctx context.Context, key K) (V, error) {
 func (g *GoCache[K, V]) Set(ctx context.Context, key K, value V) error {
 	return nil
 }
-
-
