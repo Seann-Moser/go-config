@@ -5,9 +5,9 @@ import (
 	"github.com/spf13/pflag"
 )
 
-var _ Cache[string, string] = &MemCache[string, string]{}
+var _ Cache[string] = &MemCache[string]{}
 
-type MemCache[K string, V any] struct {
+type MemCache[V any] struct {
 }
 
 func MemCacheFlags() *pflag.FlagSet {
@@ -15,15 +15,15 @@ func MemCacheFlags() *pflag.FlagSet {
 	return fs
 }
 
-func NewMemCache[K string, V any]() MemCache[K, V] {
-	return MemCache[K, V]{}
+func NewMemCache[V any]() MemCache[V] {
+	return MemCache[V]{}
 }
 
-func (g *MemCache[K, V]) Get(ctx context.Context, key K) (V, error) {
+func (g *MemCache[V]) Get(ctx context.Context, key string) (V, error) {
 	var output V
 	return output, nil
 }
 
-func (g *MemCache[K, V]) Set(ctx context.Context, key K, value V) error {
+func (g *MemCache[V]) Set(ctx context.Context, key string, value V) error {
 	return nil
 }

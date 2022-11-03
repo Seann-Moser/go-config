@@ -8,11 +8,11 @@ import (
 	"time"
 )
 
-var _ Cache[string, string] = &RetryCache[string, string]{}
+var _ Cache[string] = &RetryCache[string]{}
 
-type RetryCache[K string, V any] struct {
+type RetryCache[V any] struct {
 	timeoutDuration time.Duration
-	cache           Cache[K, V]
+	cache           Cache[V]
 
 	maxRetry       uint64
 	maxInterval    time.Duration
@@ -25,11 +25,11 @@ func RetryCacheFlags() *pflag.FlagSet {
 	return fs
 }
 
-func NewRetryCache[K string, V any](cache Cache[K, V], maxRetry uint64,
+func NewRetryCache[V any](cache Cache[V], maxRetry uint64,
 	maxInterval,
 	maxElapsedTime,
-	contextTimeout time.Duration, logger *zap.Logger) RetryCache[K, V] {
-	return RetryCache[K, V]{
+	contextTimeout time.Duration, logger *zap.Logger) RetryCache[V] {
+	return RetryCache[V]{
 		timeoutDuration: contextTimeout,
 		cache:           cache,
 		maxRetry:        maxRetry,
@@ -39,7 +39,7 @@ func NewRetryCache[K string, V any](cache Cache[K, V], maxRetry uint64,
 	}
 }
 
-func (g *RetryCache[K, V]) Get(ctx context.Context, key K) (V, error) {
+func (g *RetryCache[V]) Get(ctx context.Context, key string) (V, error) {
 	var (
 		err    error
 		output V
@@ -65,7 +65,7 @@ func (g *RetryCache[K, V]) Get(ctx context.Context, key K) (V, error) {
 	return output, nil
 }
 
-func (g *RetryCache[K, V]) Set(ctx context.Context, key K, value V) error {
+func (g *RetryCache[V]) Set(ctx context.Context, key string, value V) error {
 	op := backoff.Operation(func() error {
 		c, cancel := context.WithTimeout(ctx, g.timeoutDuration)
 		defer cancel()
@@ -78,7 +78,7 @@ func (g *RetryCache[K, V]) Set(ctx context.Context, key K, value V) error {
 	return backoff.RetryNotify(op, g.getBackoff(), notify)
 }
 
-func (g *RetryCache[K, V]) getBackoff() backoff.BackOff {
+func (g *RetryCache[V]) getBackoff() backoff.BackOff {
 	requestExpBackOff := backoff.NewExponentialBackOff()
 	requestExpBackOff.InitialInterval = 2 * time.Millisecond
 	requestExpBackOff.RandomizationFactor = 0.5

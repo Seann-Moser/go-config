@@ -5,13 +5,13 @@ import (
 	"errors"
 )
 
-type Cache[K string, V any] interface {
-	Getter[K, V]
-	Set(ctx context.Context, key K, value V) error
+type Cache[V any] interface {
+	Getter[V]
+	Set(ctx context.Context, key string, value V) error
 }
 
-type Getter[K string, V any] interface {
-	Get(ctx context.Context, key K) (V, error)
+type Getter[V any] interface {
+	Get(ctx context.Context, key string) (V, error)
 }
 
 var (

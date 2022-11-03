@@ -2,12 +2,14 @@ package cache
 
 import (
 	"context"
+	"github.com/patrickmn/go-cache"
 	"github.com/spf13/pflag"
 )
 
-var _ Cache[string, string] = &GoCache[string, string]{}
+var _ Cache[string] = &GoCache[string]{}
 
-type GoCache[K string, V any] struct {
+type GoCache[V any] struct {
+	cache cache.Cache
 }
 
 func GoCacheFlags() *pflag.FlagSet {
@@ -15,15 +17,16 @@ func GoCacheFlags() *pflag.FlagSet {
 	return fs
 }
 
-func NewGoCache[K string, V any]() GoCache[K, V] {
-	return GoCache[K, V]{}
+func NewGoCache[V any]() GoCache[V] {
+	return GoCache[V]{}
 }
 
-func (g *GoCache[K, V]) Get(ctx context.Context, key K) (V, error) {
+func (g *GoCache[V]) Get(ctx context.Context, key string) (V, error) {
 	var output V
+	g.cache.Get(key)
 	return output, nil
 }
 
-func (g *GoCache[K, V]) Set(ctx context.Context, key K, value V) error {
+func (g *GoCache[V]) Set(ctx context.Context, key string, value V) error {
 	return nil
 }

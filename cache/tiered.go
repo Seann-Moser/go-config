@@ -6,11 +6,11 @@ import (
 	"go.uber.org/zap"
 )
 
-var _ Cache[string, string] = &Tiered[string, string]{}
+var _ Cache[string] = &Tiered[string]{}
 
-type Tiered[K string, V any] struct {
-	cache   Cache[K, V]
-	getters []Cache[K, V]
+type Tiered[V any] struct {
+	cache   Cache[V]
+	getters []Cache[V]
 	logger  *zap.Logger
 }
 
@@ -19,15 +19,15 @@ func TieredFlags() *pflag.FlagSet {
 	return fs
 }
 
-func NewTieredCache[K string, V any](logger *zap.Logger, cache Cache[K, V], getters ...Cache[K, V]) Tiered[K, V] {
-	return Tiered[K, V]{
+func NewTieredCache[V any](logger *zap.Logger, cache Cache[V], getters ...Cache[V]) Tiered[V] {
+	return Tiered[V]{
 		cache:   cache,
 		getters: getters,
 		logger:  logger,
 	}
 }
 
-func (g *Tiered[K, V]) Get(ctx context.Context, key K) (V, error) {
+func (g *Tiered[V]) Get(ctx context.Context, key string) (V, error) {
 	var output V
 	var err error
 	defer func() {
@@ -53,6 +53,6 @@ func (g *Tiered[K, V]) Get(ctx context.Context, key K) (V, error) {
 	return output, err
 }
 
-func (g *Tiered[K, V]) Set(ctx context.Context, key K, value V) error {
+func (g *Tiered[V]) Set(ctx context.Context, key string, value V) error {
 	return nil
 }
