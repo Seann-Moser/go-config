@@ -4,6 +4,7 @@ import (
 	"context"
 	backoff "github.com/cenkalti/backoff/v4"
 	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"time"
 )
@@ -20,11 +21,31 @@ type RetryCache[V any] struct {
 	logger         *zap.Logger
 }
 
+const (
+	retryCacheTimeoutDurationFlag = "retry-cache-timeout-duration"
+	retryCacheMaxRetriesFlag      = "retry-cache-max-retries"
+	retryCacheMaxIntervalFlag     = "retry-cache-max-interval"
+	retryCacheMaxElapsedTimeFlag  = "retry-cache-max-elapsed-time"
+)
+
 func RetryCacheFlags() *pflag.FlagSet {
 	fs := pflag.NewFlagSet("retry-cache", pflag.ExitOnError)
+	fs.Duration(retryCacheTimeoutDurationFlag, 5*time.Second, "")
+	fs.Duration(retryCacheMaxIntervalFlag, 20*time.Millisecond, "")
+	fs.Duration(retryCacheMaxElapsedTimeFlag, 1*time.Minute, "")
+	fs.Uint64(retryCacheMaxRetriesFlag, 3, "")
 	return fs
 }
-
+func NewRetryCacheFromViper[V any](cache Cache[V], logger *zap.Logger) RetryCache[V] {
+	return RetryCache[V]{
+		timeoutDuration: viper.GetDuration(retryCacheTimeoutDurationFlag),
+		cache:           cache,
+		maxRetry:        viper.GetUint64(retryCacheMaxRetriesFlag),
+		maxInterval:     viper.GetDuration(retryCacheMaxIntervalFlag),
+		maxElapsedTime:  viper.GetDuration(retryCacheMaxElapsedTimeFlag),
+		logger:          logger,
+	}
+}
 func NewRetryCache[V any](cache Cache[V], maxRetry uint64,
 	maxInterval,
 	maxElapsedTime,

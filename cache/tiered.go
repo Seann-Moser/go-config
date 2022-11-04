@@ -2,7 +2,6 @@ package cache
 
 import (
 	"context"
-	"github.com/spf13/pflag"
 	"go.uber.org/zap"
 )
 
@@ -12,11 +11,6 @@ type Tiered[V any] struct {
 	cache   Cache[V]
 	getters []Cache[V]
 	logger  *zap.Logger
-}
-
-func TieredFlags() *pflag.FlagSet {
-	fs := pflag.NewFlagSet("tiered-cache", pflag.ExitOnError)
-	return fs
 }
 
 func NewTieredCache[V any](logger *zap.Logger, cache Cache[V], getters ...Cache[V]) Tiered[V] {
