@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/patrickmn/go-cache"
 	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 	"time"
 )
 
@@ -14,11 +15,20 @@ type GoCache[V any] struct {
 	defaultExpiration time.Duration
 }
 
+const (
+	goCacheDefaultExpirationFlag = "gocache-default-expiration"
+	goCacheCleanUpIntervalFlag   = "gocache-cleanup-interval"
+)
+
 func GoCacheFlags() *pflag.FlagSet {
 	fs := pflag.NewFlagSet("go-cache", pflag.ExitOnError)
+	fs.Duration(goCacheDefaultExpirationFlag, 1*time.Minute, "")
+	fs.Duration(goCacheCleanUpIntervalFlag, 1*time.Minute, "")
 	return fs
 }
-
+func NewGoCacheFromViper[V any]() GoCache[V] {
+	return NewGoCache[V](cache.New(viper.GetDuration(goCacheDefaultExpirationFlag), viper.GetDuration(goCacheCleanUpIntervalFlag)), viper.GetDuration(goCacheDefaultExpirationFlag))
+}
 func NewGoCache[V any](gocache *cache.Cache, defaultExpiration time.Duration) GoCache[V] {
 	return GoCache[V]{
 		cache:             gocache,

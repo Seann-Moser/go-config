@@ -15,5 +15,6 @@ type Getter[V any] interface {
 }
 
 var (
-	ErrCacheMiss = errors.New("cache miss")
+	ErrCacheMiss         = errors.New("cache miss")
+	ErrCacheForKeyExists = errors.New("cache already exists for key")
 )
