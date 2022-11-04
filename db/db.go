@@ -48,7 +48,7 @@ func connectToDB(logger *zap.Logger) (*sqlx.DB, error) {
 	}
 	maxConnections, err := flags.RequiredInt(sqlDbMaxConnections)
 	if err != nil {
-		maxConnections = 10
+		return nil, err
 	}
 	dbConf := mysql.Config{
 		AllowNativePasswords: true,
