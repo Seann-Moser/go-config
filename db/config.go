@@ -16,7 +16,7 @@ const (
 	datasetNameFlag     = "dataset-name"
 	datasetDropTable    = "dataset-drop-table"
 	datasetCreateTable  = "dataset-create-table"
-	datasetUpdateColumn = "dataset-create-table"
+	datasetUpdateColumn = "dataset-update-column"
 )
 
 func Flags() *pflag.FlagSet {
