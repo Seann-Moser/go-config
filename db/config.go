@@ -13,9 +13,10 @@ import (
 )
 
 const (
-	datasetNameFlag    = "dataset-name-flag"
-	datasetDropTable   = "dataset-drop-table-flag"
-	datasetCreateTable = "dataset-create-table-flag"
+	datasetNameFlag     = "dataset-name"
+	datasetDropTable    = "dataset-drop-table"
+	datasetCreateTable  = "dataset-create-table"
+	datasetUpdateColumn = "dataset-create-table"
 )
 
 func Flags() *pflag.FlagSet {
@@ -24,6 +25,7 @@ func Flags() *pflag.FlagSet {
 	fs.String(datasetNameFlag, "default", "")
 	fs.Bool(datasetDropTable, false, "")
 	fs.Bool(datasetCreateTable, true, "")
+	fs.Bool(datasetUpdateColumn, false, "")
 	return fs
 }
 
@@ -43,7 +45,7 @@ func New(logger *zap.Logger, tables ...interface{}) (*DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	ds, err := dataset.New(context.Background(), datasetName, viper.GetBool(datasetCreateTable), viper.GetBool(datasetDropTable), logger, db, tables...)
+	ds, err := dataset.New(context.Background(), datasetName, viper.GetBool(datasetCreateTable), viper.GetBool(datasetDropTable), viper.GetBool(datasetUpdateColumn), logger, db, tables...)
 	if err != nil {
 		return nil, err
 	}
