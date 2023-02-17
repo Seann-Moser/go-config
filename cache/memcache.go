@@ -45,7 +45,7 @@ func NewMemCache[V any](client *memcache.Client, overrideExistingCache bool) Mem
 	}
 }
 func (g *MemCache[V]) Ping() error {
-	return g.Ping()
+	return g.client.Ping()
 }
 func (g *MemCache[V]) Get(ctx context.Context, key string) (V, error) {
 	var output V

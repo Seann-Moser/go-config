@@ -72,8 +72,7 @@ func NewMQ[V any](ctx context.Context, logger *zap.Logger) (*MQ[V], error) {
 	if err != nil {
 		return nil, err
 	}
-
-	return &MQ[V]{
+	m := &MQ[V]{
 		qc:           qc,
 		batchSize:    batchSize,
 		logger:       logger.With(zap.String("queue_service", "MQ")),
@@ -81,7 +80,9 @@ func NewMQ[V any](ctx context.Context, logger *zap.Logger) (*MQ[V], error) {
 		batchTimeout: batchTimeout,
 		msgBatch:     []*kubemq.QueueMessage{},
 		batchMutex:   &sync.Mutex{},
-	}, nil
+	}
+	m.batchTicker(ctx)
+	return m, nil
 }
 func (M *MQ[V]) batchTicker(ctx context.Context) {
 	go func() {
@@ -173,5 +174,5 @@ func (M *MQ[V]) Consume(ctx context.Context, topic string) (chan V, error) {
 }
 
 func (M *MQ[V]) Close() error {
-	return M.Close()
+	return M.qc.Close()
 }
