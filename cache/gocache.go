@@ -2,10 +2,11 @@ package cache
 
 import (
 	"context"
+	"time"
+
 	"github.com/patrickmn/go-cache"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"time"
 )
 
 var _ Cache[string] = &GoCache[string]{}
@@ -26,14 +27,19 @@ func GoCacheFlags() *pflag.FlagSet {
 	fs.Duration(goCacheCleanUpIntervalFlag, 1*time.Minute, "")
 	return fs
 }
+
 func NewGoCacheFromViper[V any]() GoCache[V] {
 	return NewGoCache[V](cache.New(viper.GetDuration(goCacheDefaultExpirationFlag), viper.GetDuration(goCacheCleanUpIntervalFlag)), viper.GetDuration(goCacheDefaultExpirationFlag))
 }
+
 func NewGoCache[V any](gocache *cache.Cache, defaultExpiration time.Duration) GoCache[V] {
 	return GoCache[V]{
 		cache:             gocache,
 		defaultExpiration: defaultExpiration,
 	}
+}
+func (g *GoCache[V]) Ping() error {
+	return nil
 }
 
 func (g *GoCache[V]) Get(ctx context.Context, key string) (V, error) {

@@ -8,6 +8,7 @@ import (
 type Cache[V any] interface {
 	Getter[V]
 	Set(ctx context.Context, key string, value V) error
+	Ping() error
 }
 
 type Getter[V any] interface {

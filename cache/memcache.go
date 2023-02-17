@@ -3,10 +3,11 @@ package cache
 import (
 	"context"
 	"encoding/json"
+	"time"
+
 	"github.com/bradfitz/gomemcache/memcache"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"time"
 )
 
 var _ Cache[string] = &MemCache[string]{}
@@ -43,15 +44,21 @@ func NewMemCache[V any](client *memcache.Client, overrideExistingCache bool) Mem
 		overrideExistingCache: overrideExistingCache,
 	}
 }
-
+func (g *MemCache[V]) Ping() error {
+	return g.Ping()
+}
 func (g *MemCache[V]) Get(ctx context.Context, key string) (V, error) {
 	var output V
+
 	data, err := g.client.Get(key)
-	if err != nil && err != ErrCacheMiss {
-		return output, err
-	}
 	if err == ErrCacheMiss {
 		return output, ErrCacheMiss
+	}
+	if err == memcache.ErrCacheMiss {
+		return output, ErrCacheMiss
+	}
+	if err != nil && !(err == ErrCacheMiss || err == memcache.ErrCacheMiss) {
+		return output, err
 	}
 	err = json.Unmarshal(data.Value, &output)
 	return output, err

@@ -34,9 +34,9 @@ type DB struct {
 	DatasetManger *dataset.Dataset
 }
 
-func New(logger *zap.Logger, tables ...interface{}) (*DB, error) {
+func New(ctx context.Context, logger *zap.Logger, tables ...interface{}) (*DB, error) {
 	newDB := &DB{}
-	db, err := connectToDB(logger)
+	db, err := connectToDB(ctx, logger)
 	if err != nil {
 		return nil, err
 	}
