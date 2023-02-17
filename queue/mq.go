@@ -143,10 +143,11 @@ func (M *MQ[V]) SendBatch(ctx context.Context) error {
 	_, err := M.qc.Batch(ctx, M.msgBatch)
 	return err
 }
-func (M *MQ[V]) Consume(ctx context.Context, topic string, data chan V) error {
+func (M *MQ[V]) Consume(ctx context.Context, topic string) (chan V, error) {
 	if topic == "" {
 		topic = M.channel
 	}
+	data := make(chan V, 10)
 	_, err := M.qc.Subscribe(ctx, kubemq.NewReceiveQueueMessagesRequest().SetChannel(topic).SetWaitTimeSeconds(15), func(response *kubemq.ReceiveQueueMessagesResponse, err error) {
 		if err != nil {
 			M.logger.Fatal("failed pulling from queue", zap.Error(err))
@@ -168,7 +169,7 @@ func (M *MQ[V]) Consume(ctx context.Context, topic string, data chan V) error {
 		}
 	})
 
-	return err
+	return data, err
 }
 
 func (M *MQ[V]) Close() error {
