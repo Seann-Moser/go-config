@@ -3,7 +3,7 @@ module github.com/Seann-Moser/go-config
 go 1.19
 
 require (
-	github.com/Seann-Moser/QueryHelper v1.9.6
+	github.com/Seann-Moser/QueryHelper v1.9.7
 	github.com/bradfitz/gomemcache v0.0.0-20221031212613-62deef7fc822
 	github.com/cenkalti/backoff/v4 v4.1.3
 	github.com/go-sql-driver/mysql v1.6.0
