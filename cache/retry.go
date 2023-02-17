@@ -2,11 +2,13 @@ package cache
 
 import (
 	"context"
-	backoff "github.com/cenkalti/backoff/v4"
+	"fmt"
+	"time"
+
+	"github.com/cenkalti/backoff/v4"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
-	"time"
 )
 
 var _ Cache[string] = &RetryCache[string]{}
@@ -60,11 +62,18 @@ func NewRetryCache[V any](cache Cache[V], maxRetry uint64,
 	}
 }
 
+func (g *RetryCache[V]) Ping() error {
+	return nil
+}
+
 func (g *RetryCache[V]) Get(ctx context.Context, key string) (V, error) {
 	var (
 		err    error
 		output V
 	)
+	if err := g.cache.Ping(); err != nil {
+		return output, fmt.Errorf("unable to ping cache client:%w", err)
+	}
 	op := backoff.Operation(func() error {
 		c, cancel := context.WithTimeout(ctx, g.timeoutDuration)
 		defer cancel()

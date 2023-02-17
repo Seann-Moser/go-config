@@ -1,13 +1,15 @@
 package db
 
 import (
+	"context"
 	"time"
 
-	"github.com/Seann-Moser/go-config/flags"
 	"github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"github.com/spf13/pflag"
 	"go.uber.org/zap"
+
+	"github.com/Seann-Moser/go-config/flags"
 )
 
 const (
@@ -15,7 +17,6 @@ const (
 	sqlDbPortFlag       = "sql-db-port"
 	sqlDbPasswordFlag   = "sql-db-password"
 	sqlDbUserFlag       = "sql-db-user"
-	sqlDbWaitToConnect  = "sql-db-wait-to-connect"
 	sqlDbMaxConnections = "sql-db-max-connections"
 )
 
@@ -29,7 +30,7 @@ func MySqlFlags() *pflag.FlagSet {
 	return fs
 }
 
-func connectToDB(logger *zap.Logger) (*sqlx.DB, error) {
+func connectToDB(ctx context.Context, logger *zap.Logger) (*sqlx.DB, error) {
 	host, err := flags.RequiredString(sqlDbHostFlag)
 	if err != nil {
 		return nil, err
@@ -65,14 +66,18 @@ func connectToDB(logger *zap.Logger) (*sqlx.DB, error) {
 		return nil, err
 	}
 	db.SetMaxOpenConns(maxConnections) //max open connections
+	ticker := time.NewTicker(1 * time.Second)
 	var retries int
 	for {
-		logger.Debug("attempting to connect to db", zap.Int("attempt", retries))
-		time.Sleep(1 * time.Second)
-		if err := db.Ping(); err == nil {
-			break
+		select {
+		case <-ctx.Done():
+			return nil, err
+		case <-ticker.C:
+			logger.Debug("attempting to connect to db", zap.Int("attempt", retries))
+			if err = db.Ping(); err == nil {
+				return db, nil
+			}
+			retries++
 		}
-		retries++
 	}
-	return db, err
 }
